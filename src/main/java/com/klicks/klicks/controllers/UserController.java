@@ -36,8 +36,8 @@ public class UserController {
 	@GetMapping("all")
 	public Result<User> getAllUsers(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @RequestParam int page, @RequestParam int size){
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
-//		Validation.validatePageAndSize(page, size);
+		Validation.validateTokenForAdmin(token);
+		Validation.validatePageAndSize(page, size);
 		Role role = new Role(1, "USER");
 		int count = DatabaseHelper.getSimpleUsersCount();
 		List<User> users = userRepository.findByRole(role, PageRequest.of(page, size));
@@ -47,7 +47,7 @@ public class UserController {
 	@PostMapping("delete/{userId}")
 	public void deleteUser(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,@PathVariable int userId) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
+		Validation.validateTokenForAdmin(token);
 		User user = userRepository.findById(userId);
 		Validation.validateUser(user);
 		userRepository.delete(user);

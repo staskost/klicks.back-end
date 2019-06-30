@@ -43,7 +43,46 @@ public class SessionController {
 //		StudioSessions session = new StudioSessions(user, date, price);
 //		sessionRepository.save(session);
 //	}
-
+	
+	@GetMapping("by-date/{date}")
+	public StudioSessions getSessionsByDate(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
+			@PathVariable String date) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateToken(token);
+		return sessionRepository.findByDate(date);
+	}
+		
+	@GetMapping("before/{date}")
+	public List<StudioSessions> getSessionsBefore(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateTokenForAdmin(token);
+		return sessionRepository.findByDateBefore(date);
+	}
+	
+	
+	@GetMapping("after/{date}")
+	public List<StudioSessions> getSessionsAfter(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateTokenForAdmin(token);
+		return sessionRepository.findByDateAfter(date);
+	}
+	
+	@GetMapping("by-user-before")
+	public List<StudioSessions> getMySessionsBefore(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateToken(token);
+		User user = token.getUser();
+		return sessionRepository.findByUserAndDateBefore(user, date);
+	}
+	
+	@GetMapping("by-user-after")
+	public List<StudioSessions> getMySessionsAfter(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateToken(token);
+		User user = token.getUser();
+		return sessionRepository.findByUserAndDateAfter(user, date);
+	}
+	
 	@PostMapping("book2/{date}/{price}")
 	public void book(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date,
 			@PathVariable double price, @RequestBody List<ExtraGear> extras) {
@@ -74,7 +113,9 @@ public class SessionController {
 	public void deleteMsg(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable int sessionId) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateToken(token);
-		sessionRepository.deleteById(sessionId);
+		StudioSessions session = sessionRepository.findById(sessionId);
+		Validation.validateSession(session);
+		sessionRepository.delete(session);
 	}
 
 }

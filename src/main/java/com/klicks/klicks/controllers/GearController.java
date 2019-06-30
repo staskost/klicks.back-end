@@ -36,7 +36,7 @@ public class GearController {
 	TokenRepository tokenRepository;
 	
 	@Autowired
-	SessionRepository sessionRepository;
+	public SessionRepository sessionRepository;
 	
 	@GetMapping("all-standart")
 	public List<StandartGear> getAllstandartGear(){
@@ -60,14 +60,16 @@ public class GearController {
 	public void reamoveStandartGear(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,@PathVariable int gearId) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateToken(token);
-		standartGearRepository.deleteById(gearId);
+		StandartGear gear = standartGearRepository.findById(gearId);
+		standartGearRepository.delete(gear);
 	}
 	
 	@PostMapping("delete-extra/{gearId}")
 	public void reamoveExtratGear(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,@PathVariable int gearId) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateToken(token);
-		extraGearRepository.deleteById(gearId);
+		ExtraGear gear = extraGearRepository.findById(gearId);
+		extraGearRepository.delete(gear);
 	}
 	
 	@PostMapping("add-extra/{name}/{price}")
