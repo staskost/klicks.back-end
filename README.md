@@ -1,1 +1,1 @@
-Rest Api (Spring Boot + Hibernate + MySQL) 
+Rest Api (Spring Boot +JPA + Hibernate + MySQL) 
