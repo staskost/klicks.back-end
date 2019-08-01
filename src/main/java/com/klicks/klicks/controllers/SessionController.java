@@ -26,10 +26,10 @@ import com.klicks.klicks.validation.Validation;
 public class SessionController {
 
 	@Autowired
-	SessionRepository sessionRepository;
+	private SessionRepository sessionRepository;
 
 	@Autowired
-	TokenRepository tokenRepository;
+	private TokenRepository tokenRepository;
 
 	@GetMapping("between/{date}/{date2}")
 	public List<StudioSessions> findbetween(@PathVariable String date, @PathVariable String date2) {

@@ -28,10 +28,10 @@ import com.klicks.klicks.validation.Validation;
 public class UserController {
 
 	@Autowired
-	UserRepository userRepository;
+	private UserRepository userRepository;
 	
 	@Autowired
-	TokenRepository tokenRepository;
+	private TokenRepository tokenRepository;
 	
 	@GetMapping("all")
 	public Result<User> getAllUsers(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @RequestParam int page, @RequestParam int size){

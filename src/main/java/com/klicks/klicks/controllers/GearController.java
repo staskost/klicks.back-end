@@ -27,16 +27,16 @@ import com.klicks.klicks.validation.Validation;
 public class GearController {
 	
 	@Autowired
-	ExtraGearRepository extraGearRepository;
+	private ExtraGearRepository extraGearRepository;
 	
 	@Autowired
-	StandartGearRepository standartGearRepository;
+	private StandartGearRepository standartGearRepository;
 	
 	@Autowired
-	TokenRepository tokenRepository;
+	private TokenRepository tokenRepository;
 	
 	@Autowired
-	public SessionRepository sessionRepository;
+	private SessionRepository sessionRepository;
 	
 	@GetMapping("all-standart")
 	public List<StandartGear> getAllstandartGear(){

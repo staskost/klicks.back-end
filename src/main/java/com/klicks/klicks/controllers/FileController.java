@@ -33,8 +33,6 @@ import com.klicks.klicks.repositories.StandartGearRepository;
 import com.klicks.klicks.service.FileStorageService;
 import com.klicks.klicks.validation.Validation;
 
-
-
 @RestController
 @RequestMapping("/files")
 @CrossOrigin(origins = "*")
@@ -45,10 +43,10 @@ public class FileController {
 	private FileStorageService fileStorageService;
 
 	@Autowired
-	public StandartGearRepository standartGearRepository;
-	
+	private StandartGearRepository standartGearRepository;
+
 	@Autowired
-	public ExtraGearRepository extraGearRepository;
+	private ExtraGearRepository extraGearRepository;
 
 	@PostMapping("/uploadFile")
 	public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file) {
@@ -90,7 +88,7 @@ public class FileController {
 		gear.setPhotoLink(photoLink);
 		standartGearRepository.save(gear);
 	}
-	
+
 	@PostMapping("/savePhotoLinkExtra/{gearId}")
 	public void savePhotoLinkExtra(@PathVariable int gearId, @RequestBody String photoLink) {
 		ExtraGear gear = extraGearRepository.findById(gearId);
