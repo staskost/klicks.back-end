@@ -3,7 +3,6 @@ package com.klicks.klicks.controllers;
 import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,11 +23,14 @@ import com.klicks.klicks.repositories.UserRepository;
 @CrossOrigin(origins = "*")
 public class LoginController {
 
-	@Autowired
 	private UserRepository userRepository;
 
-	@Autowired
 	private TokenRepository tokenRepository;
+
+	public LoginController(UserRepository userRepository, TokenRepository tokenRepository) {
+		this.userRepository = userRepository;
+		this.tokenRepository = tokenRepository;
+	}
 
 	@PostMapping("/user")
 	public Token loginUser(@RequestBody Login login) {
@@ -39,10 +41,10 @@ public class LoginController {
 		String sha256hex = DigestUtils.sha256Hex(password + random);
 		User user = userRepository.findByUsernameAndPassword(username, sha256hex);
 		if (user != null) {
-				String alphanumeric = UUID.randomUUID().toString();
-				Token token = new Token(alphanumeric, user);
-				tokenRepository.save(token);
-				return token;
+			String alphanumeric = UUID.randomUUID().toString();
+			Token token = new Token(alphanumeric, user);
+			tokenRepository.save(token);
+			return token;
 		} else {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Username/Password");
 		}

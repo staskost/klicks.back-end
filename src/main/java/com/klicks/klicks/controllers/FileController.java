@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -39,14 +38,18 @@ import com.klicks.klicks.validation.Validation;
 public class FileController {
 	private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
-	@Autowired
 	private FileStorageService fileStorageService;
 
-	@Autowired
 	private StandartGearRepository standartGearRepository;
 
-	@Autowired
 	private ExtraGearRepository extraGearRepository;
+
+	public FileController(FileStorageService fileStorageService, StandartGearRepository standartGearRepository,
+			ExtraGearRepository extraGearRepository) {
+		this.fileStorageService = fileStorageService;
+		this.standartGearRepository = standartGearRepository;
+		this.extraGearRepository = extraGearRepository;
+	}
 
 	@PostMapping("/uploadFile")
 	public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file) {

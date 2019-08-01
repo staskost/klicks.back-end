@@ -3,7 +3,6 @@ package com.klicks.klicks.controllers;
 import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,20 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.klicks.klicks.entities.User;
-import com.klicks.klicks.repositories.TokenRepository;
 import com.klicks.klicks.repositories.UserRepository;
-
 
 @RestController
 @RequestMapping("/register")
 @CrossOrigin(origins = "*")
 public class RegisterController {
 
-	@Autowired
 	private UserRepository userRepository;
 
-	@Autowired
-	private TokenRepository tokenRepository;
+	public RegisterController(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 
 	@PostMapping("/user")
 	public void registerUser(@RequestBody User user) {

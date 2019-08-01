@@ -2,7 +2,6 @@ package com.klicks.klicks.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,11 +24,14 @@ import com.klicks.klicks.validation.Validation;
 @CrossOrigin(origins = "*")
 public class SessionController {
 
-	@Autowired
 	private SessionRepository sessionRepository;
 
-	@Autowired
 	private TokenRepository tokenRepository;
+
+	public SessionController(SessionRepository sessionRepository, TokenRepository tokenRepository) {
+		this.sessionRepository = sessionRepository;
+		this.tokenRepository = tokenRepository;
+	}
 
 	@GetMapping("between/{date}/{date2}")
 	public List<StudioSessions> findbetween(@PathVariable String date, @PathVariable String date2) {
@@ -43,7 +45,7 @@ public class SessionController {
 //		StudioSessions session = new StudioSessions(user, date, price);
 //		sessionRepository.save(session);
 //	}
-	
+
 	@GetMapping("by-date/{date}")
 	public StudioSessions getSessionsByDate(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
 			@PathVariable String date) {
@@ -51,38 +53,41 @@ public class SessionController {
 		Validation.validateToken(token);
 		return sessionRepository.findByDate(date);
 	}
-		
+
 	@GetMapping("before/{date}")
-	public List<StudioSessions> getSessionsBefore(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date) {
+	public List<StudioSessions> getSessionsBefore(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
+			@PathVariable String date) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateTokenForAdmin(token);
 		return sessionRepository.findByDateBefore(date);
 	}
-	
-	
+
 	@GetMapping("after/{date}")
-	public List<StudioSessions> getSessionsAfter(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date) {
+	public List<StudioSessions> getSessionsAfter(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
+			@PathVariable String date) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateTokenForAdmin(token);
 		return sessionRepository.findByDateAfter(date);
 	}
-	
+
 	@GetMapping("by-user-before")
-	public List<StudioSessions> getMySessionsBefore(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date) {
+	public List<StudioSessions> getMySessionsBefore(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
+			@PathVariable String date) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateToken(token);
 		User user = token.getUser();
 		return sessionRepository.findByUserAndDateBefore(user, date);
 	}
-	
+
 	@GetMapping("by-user-after")
-	public List<StudioSessions> getMySessionsAfter(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date) {
+	public List<StudioSessions> getMySessionsAfter(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
+			@PathVariable String date) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateToken(token);
 		User user = token.getUser();
 		return sessionRepository.findByUserAndDateAfter(user, date);
 	}
-	
+
 	@PostMapping("book2/{date}/{price}")
 	public void book(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date,
 			@PathVariable double price, @RequestBody List<ExtraGear> extras) {
