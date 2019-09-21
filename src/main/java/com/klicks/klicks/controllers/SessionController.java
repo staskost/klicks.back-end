@@ -2,7 +2,10 @@ package com.klicks.klicks.controllers;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -114,13 +117,14 @@ public class SessionController {
 		return sessionRepository.findByUser(user);
 	}
 
-	@PostMapping("/delete/{sessionId}")
-	public void deleteMsg(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable int sessionId) {
+	@DeleteMapping("/delete/{sessionId}")
+	public ResponseEntity deleteMsg(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable int sessionId) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateToken(token);
 		StudioSessions session = sessionRepository.findById(sessionId);
 		Validation.validateSession(session);
 		sessionRepository.delete(session);
+		return ResponseEntity.status(HttpStatus.ACCEPTED).build();
 	}
 
 }

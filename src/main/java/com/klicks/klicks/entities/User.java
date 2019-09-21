@@ -16,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.klicks.klicks.entities.Token;
 import com.klicks.klicks.entities.Role;
 
-
 @Entity
 @Table(name = "users")
 public class User {
@@ -25,7 +24,7 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "iduser")
 	private int id;
-	
+
 	@Column(name = "username")
 	private String username;
 
@@ -44,25 +43,24 @@ public class User {
 
 	@Column(name = "email")
 	private String email;
-	
+
 	@Column(name = "random")
 	private String random;
-	
+
 	@OneToMany
 	@JoinColumn(name = "fk_user_id", referencedColumnName = "iduser")
 	@JsonIgnore
 	private List<Token> tokens;
-	
+
 	@OneToMany
-	@JoinColumn(name = "fk_user_id",referencedColumnName = "iduser")
+	@JoinColumn(name = "fk_user_id", referencedColumnName = "iduser")
 	@JsonIgnore
 	private List<StudioSessions> studioSessions;
 
 	public User() {
 	}
 
-	public User(String username, String password, Role role, String firstName,
-			String lastName, String email) {
+	public User(String username, String password, Role role, String firstName, String lastName, String email) {
 		this.username = username;
 		this.password = password;
 		this.role = role;
@@ -134,7 +132,5 @@ public class User {
 	public void setRandom(String random) {
 		this.random = random;
 	}
-	
-	
-	
+
 }

@@ -2,7 +2,10 @@ package com.klicks.klicks.controllers;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,22 +59,25 @@ public class GearController {
 
 	}
 
-	@PostMapping("delete-standart/{gearId}")
-	public void reamoveStandartGear(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
+	@DeleteMapping("delete-standart/{gearId}")
+	public ResponseEntity reamoveStandartGear(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
 			@PathVariable int gearId) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateToken(token);
 		StandartGear gear = standartGearRepository.findById(gearId);
 		standartGearRepository.delete(gear);
+		return ResponseEntity.status(HttpStatus.ACCEPTED).build();
 	}
 
-	@PostMapping("delete-extra/{gearId}")
-	public void reamoveExtratGear(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
+	@DeleteMapping("delete-extra/{gearId}")
+	public ResponseEntity reamoveExtratGear(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
 			@PathVariable int gearId) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateToken(token);
 		ExtraGear gear = extraGearRepository.findById(gearId);
 		extraGearRepository.delete(gear);
+		return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+
 	}
 
 	@PostMapping("add-extra/{name}/{price}")

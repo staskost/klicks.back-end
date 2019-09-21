@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,9 +27,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.klicks.klicks.entities.ExtraGear;
 import com.klicks.klicks.entities.StandartGear;
+import com.klicks.klicks.entities.Token;
 import com.klicks.klicks.payload.UploadFileResponse;
 import com.klicks.klicks.repositories.ExtraGearRepository;
 import com.klicks.klicks.repositories.StandartGearRepository;
+import com.klicks.klicks.repositories.TokenRepository;
 import com.klicks.klicks.service.FileStorageService;
 import com.klicks.klicks.validation.Validation;
 
@@ -44,15 +47,22 @@ public class FileController {
 
 	private ExtraGearRepository extraGearRepository;
 
+	private TokenRepository tokenRepository;
+
 	public FileController(FileStorageService fileStorageService, StandartGearRepository standartGearRepository,
-			ExtraGearRepository extraGearRepository) {
+			ExtraGearRepository extraGearRepository, TokenRepository tokenRepository) {
+		super();
 		this.fileStorageService = fileStorageService;
 		this.standartGearRepository = standartGearRepository;
 		this.extraGearRepository = extraGearRepository;
+		this.tokenRepository = tokenRepository;
 	}
 
 	@PostMapping("/uploadFile")
-	public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file) {
+	public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file,
+			@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateTokenForAdmin(token);
 		String fileName = fileStorageService.storeFile(file);
 
 		String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath().path("/files/downloadFile/")
@@ -62,12 +72,18 @@ public class FileController {
 	}
 
 	@PostMapping("/uploadMultipleFiles")
-	public List<UploadFileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files) {
-		return Arrays.asList(files).stream().map(file -> uploadFile(file)).collect(Collectors.toList());
+	public List<UploadFileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files,
+			@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateTokenForAdmin(token);
+		return Arrays.asList(files).stream().map(file -> uploadFile(file, alphanumeric)).collect(Collectors.toList());
 	}
 
 	@GetMapping("/downloadFile/{fileName:.+}")
-	public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
+	public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request,
+			@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateTokenForAdmin(token);
 		Resource resource = fileStorageService.loadFileAsResource(fileName);
 		String contentType = null;
 		try {
@@ -85,7 +101,10 @@ public class FileController {
 	}
 
 	@PostMapping("/savePhotoLinkStandart/{gearId}")
-	public void savePhotoLinkStandart(@PathVariable int gearId, @RequestBody String photoLink) {
+	public void savePhotoLinkStandart(@PathVariable int gearId, @RequestBody String photoLink,
+			@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateTokenForAdmin(token);
 		StandartGear gear = standartGearRepository.findById(gearId);
 		Validation.validateStandartgear(gear);
 		gear.setPhotoLink(photoLink);
@@ -93,7 +112,10 @@ public class FileController {
 	}
 
 	@PostMapping("/savePhotoLinkExtra/{gearId}")
-	public void savePhotoLinkExtra(@PathVariable int gearId, @RequestBody String photoLink) {
+	public void savePhotoLinkExtra(@PathVariable int gearId, @RequestBody String photoLink,
+			@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateTokenForAdmin(token);
 		ExtraGear gear = extraGearRepository.findById(gearId);
 		Validation.validateExtragear(gear);
 		gear.setPhotoLink(photoLink);

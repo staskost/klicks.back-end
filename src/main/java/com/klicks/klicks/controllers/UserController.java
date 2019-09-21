@@ -1,17 +1,25 @@
 package com.klicks.klicks.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.klicks.klicks.database.DatabaseHelper;
 import com.klicks.klicks.entities.Result;
@@ -29,12 +37,13 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private TokenRepository tokenRepository;
-	
+
 	@GetMapping("all")
-	public Result<User> getAllUsers(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @RequestParam int page, @RequestParam int size){
+	public Result<User> getAllUsers(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @RequestParam int page,
+			@RequestParam int size) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateTokenForAdmin(token);
 		Validation.validatePageAndSize(page, size);
@@ -43,14 +52,82 @@ public class UserController {
 		List<User> users = userRepository.findByRole(role, PageRequest.of(page, size));
 		return new Result<User>(count, users);
 	}
-	
-	@PostMapping("delete/{userId}")
-	public void deleteUser(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,@PathVariable int userId) {
+
+	@GetMapping("/{userId}")
+	public User getUserById(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable int userId) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateTokenForAdmin(token);
+		User user = userRepository.findById(userId);
+		Validation.validateUser(user);
+		return user;
+
+	}
+
+	@PostMapping("/user")
+	public void registerUser(@RequestBody User user) {
+		User user2 = userRepository.findByUsername(user.getUsername());
+		User user3 = userRepository.findByEmail(user.getEmail());
+		if ((user2 == null) && (user3 == null)) {
+			String password = user.retrievePassword();
+			String random = UUID.randomUUID().toString();
+			user.setRandom(random);
+			String sha256hex = DigestUtils.sha256Hex(password + random);
+			user.setPassword(sha256hex);
+			userRepository.save(user);
+		} else if ((user2 != null) && (user3 == null)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username Already Exists");
+		} else if ((user2 == null) && (user3 != null)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email Already Exists");
+		} else if ((user2 != null) && (user3 != null)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and Username Already Exist");
+		}
+
+	}
+
+	@PutMapping("/update-email/{email}")
+	public void updateEmail(@RequestHeader(value = "X-MSG-AUTH") String alphanumeric, @PathVariable String email) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateToken(token);
+		User testUser = userRepository.findByEmail(email);
+		if (testUser != null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email Already Exists");
+		}
+		User user = token.getUser();
+		user.setEmail(email);
+		userRepository.save(user);
+	}
+
+	@PutMapping("/update-firstName/{firstName}")
+	public void updateE(@RequestHeader(value = "X-MSG-AUTH") String alphanumeric, @PathVariable String firstName) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateToken(token);
+		User user = token.getUser();
+		user.setFirstName(firstName);
+		;
+		userRepository.save(user);
+	}
+
+	@PutMapping("/update-lastName/{lastName}")
+	public void updatelastName(@RequestHeader(value = "X-MSG-AUTH") String alphanumeric,
+			@PathVariable String lastName) {
+		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
+		Validation.validateToken(token);
+		User user = token.getUser();
+		user.setLastName(lastName);
+		;
+		userRepository.save(user);
+	}
+
+	@DeleteMapping("delete/{userId}")
+	public ResponseEntity deleteUser(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
+			@PathVariable int userId) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
 		Validation.validateTokenForAdmin(token);
 		User user = userRepository.findById(userId);
 		Validation.validateUser(user);
 		userRepository.delete(user);
+		return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+
 	}
-	
+
 }
