@@ -83,40 +83,29 @@ public class UserController {
 		}
 
 	}
-
-	@PutMapping("/update-email/{email}")
-	public void updateEmail(@RequestHeader(value = "X-MSG-AUTH") String alphanumeric, @PathVariable String email) {
+	
+	@PutMapping("/update") 
+	public void updateUser(@RequestHeader(value = "X-MSG-AUTH") String alphanumeric, @RequestBody User user) {
 		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
-		User testUser = userRepository.findByEmail(email);
-		if (testUser != null) {
+		User user2 = token.getUser();
+		User user3 = userRepository.findByEmail(user.getEmail());
+		if (user3 == null) {
+			if (user2.retrievePassword().equals(user.retrievePassword())) {
+				userRepository.save(user);
+			} else {
+				String password = user.retrievePassword();
+				String random = user2.retrieveRandom();
+				user.setRandom(random);
+				String sha256hex = DigestUtils.sha256Hex(password + random);
+				user.setPassword(sha256hex);
+				userRepository.save(user);
+
+			}
+		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email Already Exists");
 		}
-		User user = token.getUser();
-		user.setEmail(email);
-		userRepository.save(user);
 	}
 
-	@PutMapping("/update-firstName/{firstName}")
-	public void updateE(@RequestHeader(value = "X-MSG-AUTH") String alphanumeric, @PathVariable String firstName) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
-		User user = token.getUser();
-		user.setFirstName(firstName);
-		;
-		userRepository.save(user);
-	}
-
-	@PutMapping("/update-lastName/{lastName}")
-	public void updatelastName(@RequestHeader(value = "X-MSG-AUTH") String alphanumeric,
-			@PathVariable String lastName) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
-		User user = token.getUser();
-		user.setLastName(lastName);
-		;
-		userRepository.save(user);
-	}
 
 	@DeleteMapping("delete/{userId}")
 	public ResponseEntity deleteUser(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
