@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.klicks.klicks.entities.Token;
+
 import com.klicks.klicks.entities.Role;
 
 @Entity
@@ -47,10 +47,10 @@ public class User {
 	@Column(name = "random")
 	private String random;
 
-	@OneToMany
-	@JoinColumn(name = "fk_user_id", referencedColumnName = "iduser")
-	@JsonIgnore
-	private List<Token> tokens;
+//	@OneToMany
+//	@JoinColumn(name = "fk_user_id", referencedColumnName = "iduser")
+//	@JsonIgnore
+//	private List<Token> tokens;
 
 	@OneToMany
 	@JoinColumn(name = "fk_user_id", referencedColumnName = "iduser")

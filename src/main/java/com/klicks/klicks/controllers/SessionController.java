@@ -10,16 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.klicks.klicks.entities.ExtraGear;
 import com.klicks.klicks.entities.StudioSessions;
-import com.klicks.klicks.entities.Token;
 import com.klicks.klicks.entities.User;
 import com.klicks.klicks.repositories.SessionRepository;
-import com.klicks.klicks.repositories.TokenRepository;
+import com.klicks.klicks.repositories.UserRepository;
 import com.klicks.klicks.validation.Validation;
 
 @RestController
@@ -29,11 +27,12 @@ public class SessionController {
 
 	private SessionRepository sessionRepository;
 
-	private TokenRepository tokenRepository;
+	
+	private UserRepository userRepository;
 
-	public SessionController(SessionRepository sessionRepository, TokenRepository tokenRepository) {
+	public SessionController(SessionRepository sessionRepository,UserRepository userRepository) {
 		this.sessionRepository = sessionRepository;
-		this.tokenRepository = tokenRepository;
+		this.userRepository = userRepository;
 	}
 
 	@GetMapping("between/{date}/{date2}")
@@ -49,54 +48,43 @@ public class SessionController {
 //		sessionRepository.save(session);
 //	}
 
-	@GetMapping("by-date/{date}")
-	public StudioSessions getSessionsByDate(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable String date) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
+	@GetMapping("by-date/{date}/{userId}")
+	public StudioSessions getSessionsByDate(@PathVariable String date, @PathVariable int userId) {
+		Validation.authorizeUser(userId);
 		return sessionRepository.findByDate(date);
 	}
 
-	@GetMapping("before/{date}")
-	public List<StudioSessions> getSessionsBefore(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable String date) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateTokenForAdmin(token);
+	@GetMapping("before/{date}/{userId}")
+	public List<StudioSessions> getSessionsBefore(@PathVariable String date, @PathVariable int userId) {
+		Validation.authorizeAdmin(userId);
 		return sessionRepository.findByDateBefore(date);
 	}
 
-	@GetMapping("after/{date}")
-	public List<StudioSessions> getSessionsAfter(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable String date) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateTokenForAdmin(token);
+	@GetMapping("after/{date}/{userId}")
+	public List<StudioSessions> getSessionsAfter(@PathVariable String date, @PathVariable int userId) {
+		Validation.authorizeAdmin(userId);
 		return sessionRepository.findByDateAfter(date);
 	}
 
-	@GetMapping("by-user-before")
-	public List<StudioSessions> getMySessionsBefore(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable String date) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
-		User user = token.getUser();
+	@GetMapping("by-user-before/{userId}")
+	public List<StudioSessions> getMySessionsBefore(@PathVariable String date, @PathVariable int userId) {
+		Validation.authorizeUser(userId);
+		User user = userRepository.findById(userId);
 		return sessionRepository.findByUserAndDateBefore(user, date);
 	}
 
-	@GetMapping("by-user-after")
-	public List<StudioSessions> getMySessionsAfter(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable String date) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
-		User user = token.getUser();
+	@GetMapping("by-user-after/{userId}")
+	public List<StudioSessions> getMySessionsAfter(@PathVariable String date, @PathVariable int userId) {
+		Validation.authorizeUser(userId);
+		User user = userRepository.findById(userId);
 		return sessionRepository.findByUserAndDateAfter(user, date);
 	}
 
-	@PostMapping("book2/{date}/{price}")
-	public void book(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable String date,
-			@PathVariable double price, @RequestBody List<ExtraGear> extras) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
-		User user = token.getUser();
+	@PostMapping("book2/{date}/{price}/{userId}")
+	public void book(@PathVariable String date, @PathVariable double price, @PathVariable int userId,
+			@RequestBody List<ExtraGear> extras) {
+		Validation.authorizeUser(userId);
+		User user = userRepository.findById(userId);;
 		StudioSessions session = new StudioSessions(user, date, price);
 		double sum = price;
 		for (ExtraGear extra : extras) {
@@ -109,18 +97,16 @@ public class SessionController {
 		}
 	}
 
-	@GetMapping("for-user")
-	public List<StudioSessions> usersSessions(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
-		User user = token.getUser();
+	@GetMapping("for-user/{userId}")
+	public List<StudioSessions> usersSessions(@PathVariable int userId) {
+		Validation.authorizeUser(userId);
+		User user = userRepository.findById(userId);;
 		return sessionRepository.findByUser(user);
 	}
 
-	@DeleteMapping("/delete/{sessionId}")
-	public ResponseEntity deleteMsg(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable int sessionId) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
+	@DeleteMapping("/delete/{sessionId}/{userId}")
+	public ResponseEntity deleteMsg(@PathVariable int sessionId, @PathVariable int userId) {
+		Validation.authorizeUser(userId);
 		StudioSessions session = sessionRepository.findById(sessionId);
 		Validation.validateSession(session);
 		sessionRepository.delete(session);

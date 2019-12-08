@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.klicks.klicks.entities.ExtraGear;
 import com.klicks.klicks.entities.StandartGear;
-import com.klicks.klicks.entities.Token;
+import com.klicks.klicks.entities.User;
 import com.klicks.klicks.repositories.ExtraGearRepository;
 import com.klicks.klicks.repositories.StandartGearRepository;
-import com.klicks.klicks.repositories.TokenRepository;
+import com.klicks.klicks.repositories.UserRepository;
 import com.klicks.klicks.validation.Validation;
 
 @RestController
@@ -31,13 +31,9 @@ public class GearController {
 
 	private StandartGearRepository standartGearRepository;
 
-	private TokenRepository tokenRepository;
-
-	public GearController(ExtraGearRepository extraGearRepository, StandartGearRepository standartGearRepository,
-			TokenRepository tokenRepository) {
+	public GearController(ExtraGearRepository extraGearRepository, StandartGearRepository standartGearRepository) {
 		this.extraGearRepository = extraGearRepository;
 		this.standartGearRepository = standartGearRepository;
-		this.tokenRepository = tokenRepository;
 	}
 
 	@GetMapping("all-standart")
@@ -50,52 +46,43 @@ public class GearController {
 		return extraGearRepository.findAll();
 	}
 
-	@GetMapping("by-session/{sessionId}")
-	public List<ExtraGear> getGearBySession(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable int sessionId) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
+	@GetMapping("by-session/{sessionId}/{userId}")
+	public List<ExtraGear> getGearBySession(@PathVariable int sessionId, @PathVariable int userId) {
+		Validation.authorizeUser(userId);
 		return extraGearRepository.findGearBySessions(sessionId);
 
 	}
 
-	@DeleteMapping("delete-standart/{gearId}")
-	public ResponseEntity reamoveStandartGear(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable int gearId) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
+	@DeleteMapping("delete-standart/{gearId}/{userId}")
+	public ResponseEntity reamoveStandartGear(@PathVariable int gearId, @PathVariable int userId) {
+		Validation.authorizeUser(userId);
 		StandartGear gear = standartGearRepository.findById(gearId);
 		standartGearRepository.delete(gear);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).build();
 	}
 
-	@DeleteMapping("delete-extra/{gearId}")
-	public ResponseEntity reamoveExtratGear(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable int gearId) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
+	@DeleteMapping("delete-extra/{gearId}/{userId}")
+	public ResponseEntity reamoveExtratGear(@PathVariable int gearId, @PathVariable int userId) {
+		Validation.authorizeUser(userId);
 		ExtraGear gear = extraGearRepository.findById(gearId);
 		extraGearRepository.delete(gear);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).build();
 
 	}
 
-	@PostMapping("add-extra/{name}/{price}")
-	public ExtraGear addExtraGear(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable String name, @PathVariable double price, @RequestBody String desc) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
+	@PostMapping("add-extra/{name}/{price}/{userId}")
+	public ExtraGear addExtraGear(@PathVariable String name, @PathVariable double price, @PathVariable int userId,
+			@RequestBody String desc) {
+		Validation.authorizeUser(userId);
 		ExtraGear gear = new ExtraGear(price, desc, name);
 		extraGearRepository.save(gear);
 		ExtraGear newGear = extraGearRepository.findById(gear.getId());
 		return newGear;
 	}
 
-	@PostMapping("add-standart/{name}")
-	public StandartGear addStandartGear(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable String name, @RequestBody String desc) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateToken(token);
+	@PostMapping("add-standart/{name}/{userId}")
+	public StandartGear addStandartGear(@PathVariable String name, @PathVariable int userId, @RequestBody String desc) {
+		Validation.authorizeUser(userId);
 		StandartGear gear = new StandartGear(name, desc);
 		standartGearRepository.save(gear);
 		StandartGear newGear = standartGearRepository.findById(gear.getId());

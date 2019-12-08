@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,9 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.klicks.klicks.database.DatabaseHelper;
 import com.klicks.klicks.entities.Result;
 import com.klicks.klicks.entities.Role;
-import com.klicks.klicks.entities.Token;
 import com.klicks.klicks.entities.User;
-import com.klicks.klicks.repositories.TokenRepository;
 import com.klicks.klicks.repositories.UserRepository;
 import com.klicks.klicks.validation.Validation;
 
@@ -35,17 +32,16 @@ import com.klicks.klicks.validation.Validation;
 @CrossOrigin(origins = "*")
 public class UserController {
 
-	@Autowired
 	private UserRepository userRepository;
 
-	@Autowired
-	private TokenRepository tokenRepository;
+	public UserController(UserRepository userRepository) {
+		super();
+		this.userRepository = userRepository;
+	}
 
-	@GetMapping("all")
-	public Result<User> getAllUsers(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @RequestParam int page,
-			@RequestParam int size) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateTokenForAdmin(token);
+	@GetMapping("all/{userId}")
+	public Result<User> getAllUsers(@PathVariable int userId, @RequestParam int page, @RequestParam int size) {
+		Validation.authorizeAdmin(userId);
 		Validation.validatePageAndSize(page, size);
 		Role role = new Role(1, "USER");
 		int count = DatabaseHelper.getSimpleUsersCount();
@@ -54,9 +50,8 @@ public class UserController {
 	}
 
 	@GetMapping("/{userId}")
-	public User getUserById(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric, @PathVariable int userId) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateTokenForAdmin(token);
+	public User getUserById(@PathVariable int userId) {
+		Validation.authorizeAdmin(userId);
 		User user = userRepository.findById(userId);
 		Validation.validateUser(user);
 		return user;
@@ -83,11 +78,11 @@ public class UserController {
 		}
 
 	}
-	
-	@PutMapping("/update") 
-	public void updateUser(@RequestHeader(value = "X-MSG-AUTH") String alphanumeric, @RequestBody User user) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		User user2 = token.getUser();
+
+	@PutMapping("/update/{userId}")
+	public void updateUser(@PathVariable int userId, @RequestBody User user) {
+		User user2 = userRepository.findById(userId);
+		Validation.validateUser(user2);
 		User user3 = userRepository.findByEmail(user.getEmail());
 		if (user3 == null) {
 			if (user2.retrievePassword().equals(user.retrievePassword())) {
@@ -106,12 +101,9 @@ public class UserController {
 		}
 	}
 
-
-	@DeleteMapping("delete/{userId}")
-	public ResponseEntity deleteUser(@RequestHeader(value = "X-KLICKS-AUTH") String alphanumeric,
-			@PathVariable int userId) {
-		Token token = tokenRepository.findByAlphanumeric(alphanumeric);
-		Validation.validateTokenForAdmin(token);
+	@DeleteMapping("delete/{adminId}/{userId}")
+	public ResponseEntity deleteUser(@PathVariable int adminId, @PathVariable int userId) {
+		Validation.authorizeAdmin(adminId);
 		User user = userRepository.findById(userId);
 		Validation.validateUser(user);
 		userRepository.delete(user);
