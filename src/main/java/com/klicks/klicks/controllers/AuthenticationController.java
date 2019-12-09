@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.klicks.klicks.convertion.Converter;
 import com.klicks.klicks.entities.ApiToken;
+import com.klicks.klicks.entities.GenericBuilder;
 import com.klicks.klicks.entities.Login;
 import com.klicks.klicks.entities.User;
 import com.klicks.klicks.entities.UserDTO;
@@ -47,7 +48,7 @@ public class AuthenticationController {
 			String token = Jwts.builder().setIssuedAt(new Date())
 					.setExpiration(new Date(System.currentTimeMillis() + 864_000_000L))
 					.signWith(SignatureAlgorithm.HS256, "123#&*zcvAWEE999").compact();
-			ApiToken apiToken = ApiToken.builder().withToken(token).withUserDTO(userDTO).build();
+			ApiToken apiToken = GenericBuilder.of(ApiToken::new).with(ApiToken::setToken, token).with(ApiToken::setUserDTO, userDTO).build();;
 			return apiToken;
 		} else {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Username/Password");

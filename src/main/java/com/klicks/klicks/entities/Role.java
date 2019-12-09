@@ -30,18 +30,6 @@ public class Role {
 	@JsonIgnore
 	private List<User> users;
 
-	protected Role() {
-	}
-
-	private Role(Builder builder) {
-		this.id = builder.id;
-		this.name = builder.name;
-	}
-
-	public Role(String name) {
-		this.name = name;
-	}
-
 	public int getId() {
 		return id;
 	}
@@ -66,28 +54,4 @@ public class Role {
 		this.users = users;
 	}
 
-	public static Builder builder() {
-		return new Builder();
-	}
-
-	public static class Builder {
-
-		private int id;
-
-		private String name;
-
-		public Builder withId(int id) {
-			this.id = id;
-			return this;
-		}
-
-		public Builder withName(String name) {
-			this.name = name;
-			return this;
-		}
-
-		public Role build() {
-			return new Role(this);
-		}
-	}
 }

@@ -39,15 +39,6 @@ public class StudioSessions {
 	@Column(name = "total_price")
 	private double totalPrice;
 
-	protected StudioSessions() {
-	}
-
-	private StudioSessions(Builder builder) {
-		this.user = builder.user;
-		this.date = builder.date;
-		this.totalPrice = builder.totalPrice;
-	}
-
 	public int getId() {
 		return id;
 	}
@@ -95,36 +86,6 @@ public class StudioSessions {
 	public void removeExtraGear(ExtraGear extraGear) {
 		this.extras.remove(extraGear);
 
-	}
-
-	public static Builder builder() {
-		return new Builder();
-	}
-
-	public static class Builder {
-
-		private User user;
-		private String date;
-		private double totalPrice;
-
-		public Builder withUser(User user) {
-			this.user = user;
-			return this;
-		}
-
-		public Builder withDate(String date) {
-			this.date = date;
-			return this;
-		}
-
-		public Builder withTotalPrice(double totalPrice) {
-			this.totalPrice = totalPrice;
-			return this;
-		}
-
-		public StudioSessions build() {
-			return new StudioSessions(this);
-		}
 	}
 
 }

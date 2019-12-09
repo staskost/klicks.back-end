@@ -47,27 +47,10 @@ public class User {
 	@Column(name = "random")
 	private String random;
 
-//	@OneToMany
-//	@JoinColumn(name = "fk_user_id", referencedColumnName = "iduser")
-//	@JsonIgnore
-//	private List<Token> tokens;
-
 	@OneToMany
 	@JoinColumn(name = "fk_user_id", referencedColumnName = "iduser")
 	@JsonIgnore
 	private List<StudioSessions> studioSessions;
-
-	public User() {
-	}
-
-	public User(String username, String password, Role role, String firstName, String lastName, String email) {
-		this.username = username;
-		this.password = password;
-		this.role = role;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.email = email;
-	}
 
 	public int getId() {
 		return id;

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.klicks.klicks.entities.ExtraGear;
+import com.klicks.klicks.entities.GenericBuilder;
+import com.klicks.klicks.entities.StandartGear;
 import com.klicks.klicks.entities.StudioSessions;
 import com.klicks.klicks.entities.User;
 import com.klicks.klicks.repositories.SessionRepository;
@@ -85,7 +87,7 @@ public class SessionController {
 			@RequestBody List<ExtraGear> extras) {
 		Validation.authorizeUser(userId);
 		User user = userRepository.findById(userId);;
-		StudioSessions session = StudioSessions.builder().withUser(user).withDate(date).withTotalPrice(price).build();
+		StudioSessions session = GenericBuilder.of(StudioSessions::new).with(StudioSessions:: setUser, user).with(StudioSessions:: setDate, date).with(StudioSessions:: setTotalPrice, price).build();
 		double sum = price;
 		for (ExtraGear extra : extras) {
 			sum += extra.getPrice();

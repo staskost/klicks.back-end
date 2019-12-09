@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "gear_provided")
 public class StandartGear implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -28,14 +28,6 @@ public class StandartGear implements Serializable {
 
 	@Column(name = "piclink")
 	private String photoLink;
-
-	protected StandartGear() {
-	}
-
-	private StandartGear(Builder builder) {
-		this.name = builder.name;
-		this.description = builder.description;
-	}
 
 	public int getId() {
 		return id;
@@ -67,32 +59,6 @@ public class StandartGear implements Serializable {
 
 	public void setPhotoLink(String photoLink) {
 		this.photoLink = photoLink;
-	}
-
-	public static Builder builder() {
-		return new Builder();
-	}
-
-	public static class Builder {
-
-		private String name;
-
-		private String description;
-
-		public Builder withName(String name) {
-			this.name = name;
-			return this;
-		}
-
-		public Builder withDescription(String description) {
-			this.description = description;
-			return this;
-		}
-
-		public StandartGear build() {
-			return new StandartGear(this);
-		}
-
 	}
 
 }

@@ -37,15 +37,6 @@ public class ExtraGear {
 	@JsonIgnore
 	List<StudioSessions> sessions;
 
-	public ExtraGear() {
-	}
-
-	private ExtraGear(Builder builder) {
-		this.price = builder.price;
-		this.description = builder.description;
-		this.name = builder.name;
-	}
-
 	public int getId() {
 		return id;
 	}
@@ -94,35 +85,4 @@ public class ExtraGear {
 		this.sessions = sessions;
 	}
 
-	public static Builder builder() {
-		return new Builder();
-	}
-
-	public static class Builder {
-
-		private double price;
-
-		private String description;
-
-		private String name;
-
-		public Builder withPrice(double price) {
-			this.price = price;
-			return this;
-		}
-
-		public Builder withDescription(String description) {
-			this.description = description;
-			return this;
-		}
-
-		public Builder withName(String name) {
-			this.name = name;
-			return this;
-		}
-
-		public ExtraGear build() {
-			return new ExtraGear(this);
-		}
-	}
 }

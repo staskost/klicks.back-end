@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.klicks.klicks.database.DatabaseHelper;
+import com.klicks.klicks.entities.GenericBuilder;
 import com.klicks.klicks.entities.Result;
 import com.klicks.klicks.entities.Role;
 import com.klicks.klicks.entities.User;
@@ -43,10 +43,12 @@ public class UserController {
 	public Result<User> getAllUsers(@PathVariable int userId, @RequestParam int page, @RequestParam int size) {
 		Validation.authorizeAdmin(userId);
 		Validation.validatePageAndSize(page, size);
-		Role role = Role.builder().withId(1).withName("USER").build();
+//		Role role = Role.builder().withId(1).withName("USER").build();
+		Role role = GenericBuilder.of(Role::new).with(Role::setId, 1).with(Role::setName, "USER").build();
 		int count = DatabaseHelper.getSimpleUsersCount();
 		List<User> users = userRepository.findByRole(role, PageRequest.of(page, size));
-		return new Result<User>(count, users);
+		Result<User> result = GenericBuilder.of(Result<User>::new).with(Result:: setCount, count).with(Result:: setResults, users).build();
+		return result;
 	}
 
 	@GetMapping("/{userId}")

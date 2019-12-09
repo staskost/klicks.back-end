@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.klicks.klicks.entities.ExtraGear;
+import com.klicks.klicks.entities.GenericBuilder;
+import com.klicks.klicks.entities.Result;
 import com.klicks.klicks.entities.StandartGear;
 import com.klicks.klicks.entities.User;
 import com.klicks.klicks.repositories.ExtraGearRepository;
@@ -74,7 +76,7 @@ public class GearController {
 	public ExtraGear addExtraGear(@PathVariable String name, @PathVariable double price, @PathVariable int userId,
 			@RequestBody String desc) {
 		Validation.authorizeUser(userId);
-		ExtraGear gear = ExtraGear.builder().withPrice(price).withName(name).withDescription(desc).build();
+		ExtraGear gear = GenericBuilder.of(ExtraGear::new).with(ExtraGear:: setName, name).with(ExtraGear:: setPrice, price).with(ExtraGear:: setDescription, desc).build();
 		extraGearRepository.save(gear);
 		ExtraGear newGear = extraGearRepository.findById(gear.getId());
 		return newGear;
@@ -83,7 +85,7 @@ public class GearController {
 	@PostMapping("add-standart/{name}/{userId}")
 	public StandartGear addStandartGear(@PathVariable String name, @PathVariable int userId, @RequestBody String desc) {
 		Validation.authorizeUser(userId);
-		StandartGear gear = StandartGear.builder().withName(name).withDescription(desc).build();
+		StandartGear gear = GenericBuilder.of(StandartGear::new).with(StandartGear:: setName, name).with(StandartGear:: setDescription, desc).build();
 		standartGearRepository.save(gear);
 		StandartGear newGear = standartGearRepository.findById(gear.getId());
 		return newGear;
