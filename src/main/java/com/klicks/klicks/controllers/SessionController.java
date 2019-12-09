@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.klicks.klicks.builder.GenericBuilder;
 import com.klicks.klicks.entities.ExtraGear;
-import com.klicks.klicks.entities.GenericBuilder;
 import com.klicks.klicks.entities.StandartGear;
 import com.klicks.klicks.entities.StudioSessions;
 import com.klicks.klicks.entities.User;

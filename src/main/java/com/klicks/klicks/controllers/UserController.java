@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.klicks.klicks.builder.GenericBuilder;
 import com.klicks.klicks.database.DatabaseHelper;
-import com.klicks.klicks.entities.GenericBuilder;
 import com.klicks.klicks.entities.Result;
 import com.klicks.klicks.entities.Role;
 import com.klicks.klicks.entities.User;

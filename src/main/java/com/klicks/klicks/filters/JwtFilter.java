@@ -1,4 +1,4 @@
-package com.klicks.klicks.handler;
+package com.klicks.klicks.filters;
 
 import java.io.IOException;
 
@@ -17,6 +17,8 @@ import io.jsonwebtoken.SignatureException;
 
 @Component
 public class JwtFilter extends GenericFilterBean {
+	
+	private static final String SECRET_KEY = "123#&*zcvAWEE999";
 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -28,7 +30,7 @@ public class JwtFilter extends GenericFilterBean {
 			throw new ServletException("401 - UNAUTHORIZED");
 		}
 		try {
-			final Claims claims = Jwts.parser().setSigningKey("123#&*zcvAWEE999")
+			final Claims claims = Jwts.parser().setSigningKey(SECRET_KEY)
 					.parseClaimsJwt(authorization.substring(7)).getBody();
 			request.setAttribute("claims", claims);
 		} catch (final SignatureException e) {

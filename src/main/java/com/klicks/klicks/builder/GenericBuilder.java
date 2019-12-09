@@ -1,4 +1,4 @@
-package com.klicks.klicks.entities;
+package com.klicks.klicks.builder;
 
 import java.util.ArrayList;
 import java.util.List;
