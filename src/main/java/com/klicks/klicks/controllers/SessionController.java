@@ -85,7 +85,7 @@ public class SessionController {
 			@RequestBody List<ExtraGear> extras) {
 		Validation.authorizeUser(userId);
 		User user = userRepository.findById(userId);;
-		StudioSessions session = new StudioSessions(user, date, price);
+		StudioSessions session = StudioSessions.builder().withUser(user).withDate(date).withTotalPrice(price).build();
 		double sum = price;
 		for (ExtraGear extra : extras) {
 			sum += extra.getPrice();

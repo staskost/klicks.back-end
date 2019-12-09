@@ -43,7 +43,7 @@ public class UserController {
 	public Result<User> getAllUsers(@PathVariable int userId, @RequestParam int page, @RequestParam int size) {
 		Validation.authorizeAdmin(userId);
 		Validation.validatePageAndSize(page, size);
-		Role role = new Role(1, "USER");
+		Role role = Role.builder().withId(1).withName("USER").build();
 		int count = DatabaseHelper.getSimpleUsersCount();
 		List<User> users = userRepository.findByRole(role, PageRequest.of(page, size));
 		return new Result<User>(count, users);

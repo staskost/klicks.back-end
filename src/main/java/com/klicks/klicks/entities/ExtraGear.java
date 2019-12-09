@@ -20,31 +20,30 @@ public class ExtraGear {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "idextra_gear")
 	private int id;
-	
+
 	@Column(name = "price")
 	private double price;
-	
+
 	@Column(name = "description")
 	private String description;
-	
+
 	@Column(name = "piclink")
 	private String photoLink;
-	
+
 	@Column(name = "name")
 	private String name;
-	
+
 	@ManyToMany(mappedBy = "extras")
 	@JsonIgnore
 	List<StudioSessions> sessions;
 
-	
 	public ExtraGear() {
 	}
 
-	public ExtraGear(double price, String description, String name) {
-		this.price = price;
-		this.description = description;
-		this.name = name;
+	private ExtraGear(Builder builder) {
+		this.price = builder.price;
+		this.description = builder.description;
+		this.name = builder.name;
 	}
 
 	public int getId() {
@@ -94,6 +93,36 @@ public class ExtraGear {
 	public void setSessions(List<StudioSessions> sessions) {
 		this.sessions = sessions;
 	}
-	
-	
+
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static class Builder {
+
+		private double price;
+
+		private String description;
+
+		private String name;
+
+		public Builder withPrice(double price) {
+			this.price = price;
+			return this;
+		}
+
+		public Builder withDescription(String description) {
+			this.description = description;
+			return this;
+		}
+
+		public Builder withName(String name) {
+			this.name = name;
+			return this;
+		}
+
+		public ExtraGear build() {
+			return new ExtraGear(this);
+		}
+	}
 }

@@ -74,7 +74,7 @@ public class GearController {
 	public ExtraGear addExtraGear(@PathVariable String name, @PathVariable double price, @PathVariable int userId,
 			@RequestBody String desc) {
 		Validation.authorizeUser(userId);
-		ExtraGear gear = new ExtraGear(price, desc, name);
+		ExtraGear gear = ExtraGear.builder().withPrice(price).withName(name).withDescription(desc).build();
 		extraGearRepository.save(gear);
 		ExtraGear newGear = extraGearRepository.findById(gear.getId());
 		return newGear;
@@ -83,7 +83,7 @@ public class GearController {
 	@PostMapping("add-standart/{name}/{userId}")
 	public StandartGear addStandartGear(@PathVariable String name, @PathVariable int userId, @RequestBody String desc) {
 		Validation.authorizeUser(userId);
-		StandartGear gear = new StandartGear(name, desc);
+		StandartGear gear = StandartGear.builder().withName(name).withDescription(desc).build();
 		standartGearRepository.save(gear);
 		StandartGear newGear = standartGearRepository.findById(gear.getId());
 		return newGear;

@@ -13,7 +13,6 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
 @Entity
 @Table(name = "roles")
 public class Role {
@@ -31,12 +30,12 @@ public class Role {
 	@JsonIgnore
 	private List<User> users;
 
-	public Role() {
+	protected Role() {
 	}
 
-	public Role(int id, String name) {
-		this.id = id;
-		this.name = name;
+	private Role(Builder builder) {
+		this.id = builder.id;
+		this.name = builder.name;
 	}
 
 	public Role(String name) {
@@ -67,4 +66,28 @@ public class Role {
 		this.users = users;
 	}
 
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static class Builder {
+
+		private int id;
+
+		private String name;
+
+		public Builder withId(int id) {
+			this.id = id;
+			return this;
+		}
+
+		public Builder withName(String name) {
+			this.name = name;
+			return this;
+		}
+
+		public Role build() {
+			return new Role(this);
+		}
+	}
 }
