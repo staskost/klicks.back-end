@@ -20,10 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.klicks.klicks.builder.GenericBuilder;
+import com.klicks.klicks.convertion.Converter;
 import com.klicks.klicks.database.DatabaseHelper;
 import com.klicks.klicks.entities.Result;
 import com.klicks.klicks.entities.Role;
 import com.klicks.klicks.entities.User;
+import com.klicks.klicks.entities.UserDTO;
 import com.klicks.klicks.repositories.UserRepository;
 import com.klicks.klicks.validation.Validation;
 
@@ -40,23 +42,23 @@ public class UserController {
 	}
 
 	@GetMapping("all/{userId}")
-	public Result<User> getAllUsers(@PathVariable int userId, @RequestParam int page, @RequestParam int size) {
+	public Result<UserDTO> getAllUsers(@PathVariable int userId, @RequestParam int page, @RequestParam int size) {
 		Validation.authorizeAdmin(userId);
 		Validation.validatePageAndSize(page, size);
-//		Role role = Role.builder().withId(1).withName("USER").build();
 		Role role = GenericBuilder.of(Role::new).with(Role::setId, 1).with(Role::setName, "USER").build();
 		int count = DatabaseHelper.getSimpleUsersCount();
 		List<User> users = userRepository.findByRole(role, PageRequest.of(page, size));
-		Result<User> result = GenericBuilder.of(Result<User>::new).with(Result:: setCount, count).with(Result:: setResults, users).build();
+		List<UserDTO> usersDTO = Converter.usersToUsersDTO(users);
+		Result<UserDTO> result = GenericBuilder.of(Result<UserDTO>::new).with(Result:: setCount, count).with(Result:: setResults, usersDTO).build();
 		return result;
 	}
 
 	@GetMapping("/{userId}")
-	public User getUserById(@PathVariable int userId) {
+	public UserDTO getUserById(@PathVariable int userId) {
 		Validation.authorizeAdmin(userId);
 		User user = userRepository.findById(userId);
-		Validation.validateUser(user);
-		return user;
+		UserDTO userDTO = Converter.userToUserDTO(user);
+		return userDTO;
 
 	}
 

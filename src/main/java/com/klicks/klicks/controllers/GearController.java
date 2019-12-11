@@ -76,7 +76,8 @@ public class GearController {
 	public ExtraGear addExtraGear(@PathVariable String name, @PathVariable double price, @PathVariable int userId,
 			@RequestBody String desc) {
 		Validation.authorizeUser(userId);
-		ExtraGear gear = GenericBuilder.of(ExtraGear::new).with(ExtraGear:: setName, name).with(ExtraGear:: setPrice, price).with(ExtraGear:: setDescription, desc).build();
+		ExtraGear gear = GenericBuilder.of(ExtraGear::new).with(ExtraGear::setName, name)
+				.with(ExtraGear::setPrice, price).with(ExtraGear::setDescription, desc).build();
 		extraGearRepository.save(gear);
 		ExtraGear newGear = extraGearRepository.findById(gear.getId());
 		return newGear;
@@ -85,7 +86,8 @@ public class GearController {
 	@PostMapping("add-standart/{name}/{userId}")
 	public StandartGear addStandartGear(@PathVariable String name, @PathVariable int userId, @RequestBody String desc) {
 		Validation.authorizeUser(userId);
-		StandartGear gear = GenericBuilder.of(StandartGear::new).with(StandartGear:: setName, name).with(StandartGear:: setDescription, desc).build();
+		StandartGear gear = GenericBuilder.of(StandartGear::new).with(StandartGear::setName, name)
+				.with(StandartGear::setDescription, desc).build();
 		standartGearRepository.save(gear);
 		StandartGear newGear = standartGearRepository.findById(gear.getId());
 		return newGear;

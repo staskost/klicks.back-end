@@ -57,6 +57,5 @@ public class AuthenticationController {
 				.with(ApiToken::setUserDTO, userDTO).build();
 		;
 		return apiToken;
-
 	}
 }

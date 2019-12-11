@@ -1,6 +1,9 @@
 package com.klicks.klicks.controllers;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -52,7 +55,6 @@ public class FileController {
 
 	@PostMapping("/uploadFile/{userId}")
 	public UploadFileResponse uploadFile(@RequestParam("file") MultipartFile file, @PathVariable int userId) {
-		;
 		Validation.authorizeAdmin(userId);
 		String fileName = fileStorageService.storeFile(file);
 
@@ -62,12 +64,11 @@ public class FileController {
 		return new UploadFileResponse(fileName, fileDownloadUri, file.getContentType(), file.getSize());
 	}
 
-//	@PostMapping("/uploadMultipleFiles/{userId}")
-//	public List<UploadFileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files,
-//			@PathVariable int userId) {
-//		Validation.authorizeAdmin(userId);
-//		return Arrays.asList(files).stream().map(file -> uploadFile(file, alphanumeric)).collect(Collectors.toList());
-//	}
+	@PostMapping("/uploadMultipleFiles/{userId}")
+	public List<UploadFileResponse> uploadMultipleFiles(@RequestParam("files") MultipartFile[] files,
+			@PathVariable int userId) {
+		return Arrays.asList(files).stream().map(file -> uploadFile(file, userId)).collect(Collectors.toList());
+	}
 
 	@GetMapping("/downloadFile/{fileName:.+}/{userId}")
 	public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request,
